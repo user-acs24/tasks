@@ -1,0 +1,415 @@
+Got it. Since you’re exploiting the Napping 1.0.1 VulnHub machine and your mentor wants a complete pentesting report (scan → enumeration → exploitation → privilege escalation), below is a structured professional report you can submit or modify. I kept it similar to how real pentest reports are written. 🛡️💻
+
+You can copy this into Word / PDF and add screenshots from your lab.
+
+
+---
+
+Penetration Testing Report
+
+Target Machine: Napping 1.0.1
+Platform: VulnHub
+Testing Type: Authorized Lab Penetration Test
+Tester: Apoorva C S
+Date: (Add date)
+
+
+---
+
+1. Executive Summary
+
+The purpose of this penetration test was to assess the security posture of the Napping 1.0.1 vulnerable machine hosted on the VulnHub platform. The objective was to identify vulnerabilities, exploit them, and achieve root access to the system.
+
+During the engagement, several vulnerabilities were discovered including:
+
+Tabnabbing phishing vulnerability
+
+Credential reuse
+
+Weak sudo configuration
+
+
+These vulnerabilities allowed the attacker to obtain administrator credentials and escalate privileges to gain root access on the system.
+
+
+---
+
+2. Scope of Testing
+
+The testing scope included:
+
+Target Machine:
+
+Napping 1.0.1 (VulnHub VM)
+
+
+Testing Activities:
+
+Network scanning
+
+Service enumeration
+
+Web application analysis
+
+Exploitation
+
+Privilege escalation
+
+
+Testing was conducted in a controlled lab environment.
+
+
+---
+
+3. Methodology
+
+The following methodology was used during testing:
+
+1. Information Gathering
+
+
+2. Network Scanning
+
+
+3. Service Enumeration
+
+
+4. Web Application Analysis
+
+
+5. Exploitation
+
+
+6. Privilege Escalation
+
+
+7. Post Exploitation
+
+
+
+Tools used:
+
+Nmap
+
+Netcat
+
+Gobuster / Dirsearch
+
+SSH
+
+Linux commands
+
+Python scripting
+
+
+
+---
+
+4. Information Gathering
+
+First, the attacker identified the IP address of the attacking machine.
+
+Command used:
+
+hostname -I
+
+Example output:
+
+10.0.2.15
+
+Next, a network scan was performed to locate the target machine on the network.
+
+Command used:
+
+sudo nmap -sn 10.0.2.0/24
+
+This scan revealed the target machine:
+
+10.0.2.12
+
+
+---
+
+5. Port Scanning
+
+A detailed port scan was performed using Nmap to identify open services.
+
+Command used:
+
+sudo nmap -sC -sV -p- 10.0.2.12
+
+Results:
+
+Port	Service	Version
+
+22	SSH	OpenSSH
+80	HTTP	Apache Web Server
+
+
+This indicates the machine hosts:
+
+SSH service
+
+Web application
+
+
+
+---
+
+6. Web Enumeration
+
+The website hosted on port 80 was accessed via browser.
+
+http://10.0.2.12
+
+The website contained a login page and other web resources.
+
+Directory enumeration was performed using:
+
+gobuster dir -u http://10.0.2.12 -w /usr/share/wordlists/dirb/common.txt
+
+This revealed additional directories used by the web application.
+
+
+---
+
+7. Tabnabbing Attack
+
+The machine was designed to demonstrate a Tabnabbing attack.
+
+What is Tabnabbing?
+
+Tabnabbing is a phishing attack where a webpage changes its content when a user switches tabs, tricking the user into entering credentials.
+
+In this case:
+
+1. The attacker modified a webpage to simulate a login page.
+
+
+2. The administrator opened the webpage.
+
+
+3. When the administrator switched tabs, the page changed to a fake login page.
+
+
+4. The administrator entered credentials.
+
+
+
+These credentials were captured by the attacker.
+
+Captured credentials:
+
+Username: administrator
+Password: (captured from phishing page)
+
+
+---
+
+8. SSH Access
+
+Using the captured credentials, the attacker logged into the system via SSH.
+
+Command used:
+
+ssh administrator@10.0.2.12
+
+Successful login provided initial shell access.
+
+
+---
+
+9. Privilege Escalation
+
+After gaining shell access, the attacker checked sudo permissions.
+
+Command used:
+
+sudo -l
+
+Output indicated that the user could run a Python script with elevated privileges.
+
+Example:
+
+(ALL) NOPASSWD: /usr/bin/python3 /home/user/script.py
+
+
+---
+
+10. Exploiting Python Script
+
+The Python script was executed every 2 minutes by another user.
+
+Because the attacker had write permissions, the script was modified to spawn a root shell.
+
+Example payload:
+
+import os
+os.system("/bin/bash")
+
+After the script executed, the attacker gained root privileges.
+
+
+---
+
+11. Root Access
+
+Verification command:
+
+whoami
+
+Output:
+
+root
+
+The attacker now had full administrative access to the machine.
+
+
+---
+
+12. Vulnerabilities Identified
+
+1. Tabnabbing Phishing Attack
+
+Severity: High
+
+Description:
+The web application allowed attackers to conduct tabnabbing phishing attacks to capture credentials.
+
+Impact:
+
+Credential theft
+
+Unauthorized system access
+
+
+Recommendation:
+
+Implement anti-phishing protections
+
+Use browser security headers
+
+Educate users about phishing
+
+
+
+---
+
+2. Credential Reuse
+
+Severity: High
+
+Description:
+Captured credentials were reused for SSH login.
+
+Impact:
+
+Unauthorized remote access
+
+
+Recommendation:
+
+Enforce strong password policies
+
+Implement multi-factor authentication
+
+
+
+---
+
+3. Misconfigured Sudo Permissions
+
+Severity: Critical
+
+Description:
+The user was allowed to execute scripts with elevated privileges.
+
+Impact:
+
+Privilege escalation to root
+
+
+Recommendation:
+
+Restrict sudo permissions
+
+Validate script integrity
+
+
+
+---
+
+13. Conclusion
+
+The penetration test demonstrated that multiple vulnerabilities allowed a full compromise of the Napping 1.0.1 system.
+
+Attack chain:
+
+1. Network scanning identified services
+
+
+2. Web enumeration discovered the application
+
+
+3. Tabnabbing phishing captured administrator credentials
+
+
+4. SSH login provided initial access
+
+
+5. Misconfigured sudo permissions enabled privilege escalation
+
+
+6. Root access was achieved
+
+
+
+Proper security controls and user awareness can prevent such attacks.
+
+
+---
+
+14. Tools Used
+
+Tool	Purpose
+
+Nmap	Network scanning
+Gobuster	Directory enumeration
+SSH	Remote login
+Linux Commands	System enumeration
+
+
+
+---
+
+💡 Tip for your submission:
+Add screenshots of:
+
+Nmap scan
+
+Website page
+
+SSH login
+
+sudo -l output
+
+Root shell
+
+
+These make the report look very professional.
+
+
+---
+
+If you want, I can also give you a SUPER PROFESSIONAL version (like real pentest company reports) with:
+
+Risk ratings (CVSS)
+
+Attack chain diagram
+
+Screenshots section
+
+Evidence format
+
+
+Your mentor will be very impressed with that version. 🚀
